@@ -1,9 +1,8 @@
 package main
 
-import (
-	"fmt"
-)
+import "goRedis/server"
 
 func main() {
-	fmt.Println("hi")
+	var se server.Server = server.NewTCPServer(5535, nil)
+	se.StartListen()
 }
