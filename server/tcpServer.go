@@ -18,7 +18,7 @@ func NewTCPServer(port int, handler connectionHandler.ConnectionHandler) *TCPSer
 }
 
 func (ts *TCPServer) StartListen(params ...interface{}) {
-	l, err := net.Listen("tcp4", ":" + strconv.Itoa(ts.port))
+	l, err := net.Listen("tcp4", ":"+strconv.Itoa(ts.port))
 	if err != nil {
 		log.Fatal(err)
 		panic(err)
@@ -48,4 +48,10 @@ func (ts *TCPServer) HandleConnection(conn net.Conn) {
 	}
 
 	ts.handler.HandleConnection(conn)
+
+	err := ts.handler.HandleConnection(conn)
+	if err != nil {
+		log.Error(conn.RemoteAddr(), err)
+		return
+	}
 }
