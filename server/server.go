@@ -3,7 +3,7 @@ package server
 import "net"
 
 type Server interface {
-	StartListen(params ...interface{})
+	StartListen()
 	StopListen()
 	HandleConnection(conn net.Conn)
 }

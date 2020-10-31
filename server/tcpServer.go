@@ -1,8 +1,10 @@
 package server
 
 import (
+	"bufio"
+	"fmt"
 	log "github.com/sirupsen/logrus"
-	"goRedis/server/connectionHandler"
+	"goRedis/parser"
 	"net"
 	"strconv"
 )
@@ -10,31 +12,31 @@ import (
 type TCPServer struct {
 	port      int
 	isRunning bool
-	handler   connectionHandler.ConnectionHandler
+	pr        parser.Parser
 }
 
-func NewTCPServer(port int, handler connectionHandler.ConnectionHandler) *TCPServer {
-	return &TCPServer{port, false, handler}
+func NewTCPServer(port int, pr parser.Parser) *TCPServer {
+	return &TCPServer{port, false, pr}
 }
 
-func (ts *TCPServer) StartListen(params ...interface{}) {
-	l, err := net.Listen("tcp4", ":"+strconv.Itoa(ts.port))
+func (ts *TCPServer) StartListen() {
+	listener, err := net.Listen("tcp4", ":"+strconv.Itoa(ts.port))
 	if err != nil {
 		log.Fatal(err)
 		panic(err)
 	}
-	defer l.Close()
+	defer listener.Close()
 	log.Info("Starting To Listen on port: " + strconv.Itoa(ts.port))
 
 	ts.isRunning = true
 	for ts.isRunning {
-		c, err := l.Accept()
+		conn, err := listener.Accept()
 		if err != nil {
 			log.Error(err)
 			continue
 		}
 
-		go ts.HandleConnection(c)
+		go ts.HandleConnection(conn)
 	}
 }
 
@@ -43,15 +45,15 @@ func (ts *TCPServer) StopListen() {
 }
 
 func (ts *TCPServer) HandleConnection(conn net.Conn) {
-	if ts.handler == nil {
-		panic("There is no connection handler! Shutting down...")
-	}
-
-	ts.handler.HandleConnection(conn)
-
-	err := ts.handler.HandleConnection(conn)
+	reader := bufio.NewReader(conn)
+	command, err := ts.pr.ParseMessage(reader)
 	if err != nil {
-		log.Error(conn.RemoteAddr(), err)
+		log.Error(err)
+		return
+	} else if _, ok := command.([]interface{}); !ok {
+		log.Error(fmt.Sprintf("Not a known command structure: %v", command))
 		return
 	}
+
+
 }

@@ -8,59 +8,10 @@ import (
 	"strconv"
 )
 
-const delimiter = "\r\n"
-
-var convertToVal = map[byte]func(re *bufio.Reader) (interface{}, error){
-	'+': StringParser,
-	'-': StringParser,
-	':': IntParser,
-	'$': BulkStringParser,
-	'*': ArrayParser,
+type Parser interface {
+	ParseMessage(re *bufio.Reader) (result interface{}, err error)
 }
 
-func ParseMessage(re *bufio.Reader) (result interface{}, err error) {
-	valType, err := re.ReadByte()
-	if err == nil {
-		result, err = convertToVal[valType](re)
-	}
-
-	return result, err
-}
-
-func StringParser(re *bufio.Reader) (interface{}, error) {
-	return readUntilDelimiter(re, delimiter)
-}
-
-func BulkStringParser(re *bufio.Reader) (interface{}, error) {
-	var buf []byte
-	length, err := readInteger(re)
-	if err == nil {
-		buf = make([]byte, length)
-		_, err = re.Read(buf)
-	}
-	return string(buf), err
-}
-
-func IntParser(re *bufio.Reader) (interface{}, error) {
-	return readInteger(re)
-}
-
-func ArrayParser(re *bufio.Reader) (interface{}, error) {
-	arrLen, err := readInteger(re)
-	if err != nil {
-		return nil, err
-	}
-
-	arr := make([]interface{}, arrLen)
-	for i := 0; i < arrLen; i++ {
-		arr[i], err = ParseMessage(re)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return arr, nil
-}
 func readInteger(re *bufio.Reader) (int, error) {
 	res := 0
 	str, err := readUntilDelimiter(re, delimiter)
