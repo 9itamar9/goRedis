@@ -47,6 +47,7 @@ func (ts *TCPServer) StopListen() {
 func (ts *TCPServer) HandleConnection(conn net.Conn) {
 	reader := bufio.NewReader(conn)
 	command, err := ts.pr.ParseMessage(reader)
+
 	if err != nil {
 		log.Error(err)
 		return
@@ -55,5 +56,5 @@ func (ts *TCPServer) HandleConnection(conn net.Conn) {
 		return
 	}
 
-
+	log.Info(fmt.Sprintf("got %v from %v", command, conn.RemoteAddr()))
 }
