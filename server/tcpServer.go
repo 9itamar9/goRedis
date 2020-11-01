@@ -4,19 +4,21 @@ import (
 	"bufio"
 	"fmt"
 	log "github.com/sirupsen/logrus"
+	"goRedis/commandHandler"
 	"goRedis/parser"
 	"net"
 	"strconv"
 )
 
 type TCPServer struct {
-	port      int
-	isRunning bool
-	pr        parser.Parser
+	port           int
+	isRunning      bool
+	pr             parser.Parser
+	commandHandler commandHandler.CommandHandler
 }
 
-func NewTCPServer(port int, pr parser.Parser) *TCPServer {
-	return &TCPServer{port, false, pr}
+func NewTCPServer(port int, pr parser.Parser, co commandHandler.CommandHandler) *TCPServer {
+	return &TCPServer{port, false, pr, co}
 }
 
 func (ts *TCPServer) StartListen() {
@@ -57,4 +59,12 @@ func (ts *TCPServer) HandleConnection(conn net.Conn) {
 	}
 
 	log.Info(fmt.Sprintf("got %v from %v", command, conn.RemoteAddr()))
+	res, err := ts.commandHandler.HandleCommand(command)
+
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	//SendBackAnswer
 }

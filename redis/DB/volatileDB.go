@@ -11,18 +11,18 @@ type VolatileDB struct {
 	data map[interface{}]interface{}
 }
 
-func (v *VolatileDB) Get(key string) interface{} {
+func (v *VolatileDB) Get(key interface{}) (interface{}, error) {
 	v.Lock()
 	defer v.Unlock()
 
 	if val, ok := v.data[key]; ok {
-		return val
+		return val, nil
 	}
 
-	return errors.New(fmt.Sprintf("Unkown key: %v", key))
+	return nil, errors.New(fmt.Sprintf("Unkown key: %v", key))
 }
 
-func (v *VolatileDB) Set(key string, val interface{}) (succeeded bool) {
+func (v *VolatileDB) Set(key interface{}, val interface{}) (succeeded bool) {
 	v.Lock()
 	defer v.Unlock()
 

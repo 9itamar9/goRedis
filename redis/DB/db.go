@@ -1,6 +1,6 @@
 package DB
 
 type DB interface {
-	Get(key string) interface{}
-	Set(key string, val interface{}) (succeeded bool)
+	Get(key interface{}) (interface{}, error)
+	Set(key interface{}, val interface{}) (succeeded bool)
 }

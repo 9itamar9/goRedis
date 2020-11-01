@@ -1,6 +1,8 @@
 package redis
 
-type redis struct {
-	commands map[string]func(command []interface{}) interface{}
+import "goRedis/redis/DB"
 
+type Redis struct {
+	Commands *map[interface{}]func(params []interface{}) (interface{}, error)
+	DB DB.DB
 }
