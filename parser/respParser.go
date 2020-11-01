@@ -8,6 +8,7 @@ type RESPParser struct {
 	Parsers map[byte]func(re *bufio.Reader) (interface{}, error)
 }
 
+// NOTE: This parser still cannot handle invalid structure and will prob stuck waiting for the delimiter
 func (pr *RESPParser) ParseMessage(re *bufio.Reader) (result interface{}, err error) {
 	valType, err := re.ReadByte()
 	if err == nil {
