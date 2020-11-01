@@ -9,6 +9,7 @@ import (
 	"goRedis/redis"
 	"goRedis/redis/DB"
 	"goRedis/server"
+	"sync"
 )
 
 func main() {
@@ -23,7 +24,7 @@ func main() {
 	}
 
 	red := new(redis.Redis)
-	red.Commands = &map[interface{}]func(params []interface{}) (interface{}, error){
+	red.Commands = map[interface{}]func(params []interface{}) (interface{}, error){
 		"GET": func(params []interface{}) (interface{}, error) {
 			if len(params) == 0 {
 				return nil, errors.New("not enough arguments")
@@ -40,7 +41,7 @@ func main() {
 			return "", errors.New(fmt.Sprintf("Could not set value %v for %v", params[1], params[0]))
 		},
 	}
-	red.DB = &DB.VolatileDB{}
+	red.DB = &DB.VolatileDB{sync.Mutex{}, make(map[interface{}]interface{})}
 
 	redisCmd := commandHandler.NewRedisCommandHandler(red)
 

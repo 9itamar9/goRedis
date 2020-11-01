@@ -8,14 +8,14 @@ import (
 
 type VolatileDB struct {
 	sync.Mutex
-	data map[interface{}]interface{}
+	Data map[interface{}]interface{}
 }
 
 func (v *VolatileDB) Get(key interface{}) (interface{}, error) {
 	v.Lock()
 	defer v.Unlock()
 
-	if val, ok := v.data[key]; ok {
+	if val, ok := v.Data[key]; ok {
 		return val, nil
 	}
 
@@ -26,6 +26,6 @@ func (v *VolatileDB) Set(key interface{}, val interface{}) (succeeded bool) {
 	v.Lock()
 	defer v.Unlock()
 
-	v.data[key] = val
+	v.Data[key] = val
 	return true
 }

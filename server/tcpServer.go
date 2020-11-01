@@ -66,5 +66,5 @@ func (ts *TCPServer) HandleConnection(conn net.Conn) {
 		return
 	}
 
-	//SendBackAnswer
+	conn.Write([]byte(fmt.Sprint(res)))
 }
