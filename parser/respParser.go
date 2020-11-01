@@ -2,7 +2,7 @@ package parser
 
 import "bufio"
 
-const delimiter = "\r\n"
+const delimiter = "\\r\\n"
 
 type RESPParser struct {
 	Parsers map[byte]func(re *bufio.Reader) (interface{}, error)
@@ -25,10 +25,10 @@ func (pr *RESPParser) BulkStringParser(re *bufio.Reader) (interface{}, error) {
 	var buf []byte
 	length, err := readInteger(re)
 	if err == nil {
-		buf = make([]byte, length)
+		buf = make([]byte, length + len(delimiter))
 		_, err = re.Read(buf)
 	}
-	return string(buf), err
+	return string(buf[:length]), err
 }
 
 func (pr *RESPParser) IntParser(re *bufio.Reader) (interface{}, error) {

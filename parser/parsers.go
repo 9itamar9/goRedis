@@ -22,7 +22,7 @@ func readInteger(re *bufio.Reader) (int, error) {
 }
 
 func readUntilDelimiter(re *bufio.Reader, delimiter string) (string, error) {
-	buf := make([]byte, 64, 0)
+	buf := make([]byte, 0, 64)
 	delimiterLen := len(delimiter)
 
 	for {
