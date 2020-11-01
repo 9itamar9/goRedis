@@ -48,23 +48,26 @@ func (ts *TCPServer) StopListen() {
 
 func (ts *TCPServer) HandleConnection(conn net.Conn) {
 	reader := bufio.NewReader(conn)
-	command, err := ts.pr.ParseMessage(reader)
+	for ts.isRunning {
 
-	if err != nil {
-		log.Error(err)
-		return
-	} else if _, ok := command.([]interface{}); !ok {
-		log.Error(fmt.Sprintf("Not a known command structure: %v", command))
-		return
+		command, err := ts.pr.ParseMessage(reader)
+
+		if err != nil {
+			log.Error(err)
+			return
+		} else if _, ok := command.([]interface{}); !ok {
+			log.Error(fmt.Sprintf("Not a known command structure: %v", command))
+			return
+		}
+
+		log.Info(fmt.Sprintf("got %v from %v", command, conn.RemoteAddr()))
+		res, err := ts.commandHandler.HandleCommand(command)
+
+		if err != nil {
+			log.Error(err)
+			return
+		}
+
+		conn.Write([]byte(fmt.Sprint(res)))
 	}
-
-	log.Info(fmt.Sprintf("got %v from %v", command, conn.RemoteAddr()))
-	res, err := ts.commandHandler.HandleCommand(command)
-
-	if err != nil {
-		log.Error(err)
-		return
-	}
-
-	conn.Write([]byte(fmt.Sprint(res)))
 }
