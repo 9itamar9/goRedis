@@ -2,7 +2,7 @@ package parser
 
 import "bufio"
 
-const delimiter = "\\r\\n"
+const delimiter = "\r\n"
 
 type RESPParser struct {
 	Parsers map[byte]func(re *bufio.Reader) (interface{}, error)
